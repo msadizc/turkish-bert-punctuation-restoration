@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Seçimi</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: "Trebuchet MS", sans-serif;
+            background-color: #ffffff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .header-text {
+            color: #000;
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #000;
+            border-radius: 10px;
+            width: 400px;
+        }
+        .wrapper {
+            margin: 10px 0;
+        }
+        .wrapper input, .wrapper button, .wrapper select, .wrapper textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .no-border {
+            border: none;
+            padding: 0;
+        }
+        .centered-text {
+            text-align: center;
+        }
+        .centered-placeholder::placeholder {
+            text-align: center;
+        }
+        .centered-select {
+            text-align-last: center;
+        }
+        button {
+            background-color: #000;
+            color: #fff;
+            cursor: pointer;
+        }
+        #result {
+            height: 150px;
+        }
+        #result2 {
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/image.png" alt="Logo" class="logo">
+        <div class="header-text">BLM3010 - Ara Proje</div>
+        <div class="header-text">Türkçe Bert Modelleri ile Otomatik Noktalama İşaretleri Düzeltme Sistemi</div>
+        <div class="header-text">20011033 - Doğukan Kahya</div>
+        <div class="header-text">20011037 - Mehmet Şadi Özcan</div>
+    </div>
+    <div class="container">
+        <div class="wrapper no-border centered-text">
+            <div>Model seç:</div>
+        </div>
+        <div class="wrapper">
+            <select id="modelSelect" class="centered-select">
+                <option value="finetuned_tiny">Finetuned Tiny Model</option>
+                <option value="finetuned_mini">Finetuned Mini Model</option>
+                <option value="finetuned_small">Finetuned Small Model</option>
+                <option value="finetuned_medium">Finetuned Medium Model</option>
+                <option value="finetuned_base">Finetuned Base Model</option>
+                <option value="pretrained_tiny">Pretrained Tiny Model</option>
+                <option value="pretrained_mini">Pretrained Mini Model</option>
+                <option value="pretrained_small">Pretrained Small Model</option>
+                <option value="pretrained_medium">Pretrained Medium Model</option>
+                <option value="pretrained_base">Pretrained Base Model</option>
+            </select>
+        </div>
+        <div class="wrapper">
+            <input type="text" id="inputText" class="centered-placeholder" placeholder="Metin girin.">
+        </div>
+        <div class="wrapper">
+            <button onclick="predict()">Çalıştır</button>
+        </div>
+        <div class="wrapper no-border centered-text">
+            <div>Sonuç:</div>
+        </div>
+        <div class="wrapper">
+            <textarea id="result" readonly></textarea>
+        </div>
+        <div class="wrapper">
+            <textarea id="result2" readonly></textarea>
+        </div>
+    </div>
+    <script>
+        async function predict() {
+            const text = document.getElementById('inputText').value;
+            const model = document.getElementById('modelSelect').value;
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text, model: model })
+            });
+            const data = await response.json();
+            const tokenLevelResult = data.predictions.map(item => `${item[0]}: ${item[1]}`).join(', ');
+            const sentenceLevelResult = data.reconstructed_sentence;
+            document.getElementById('result').value = tokenLevelResult;
+            document.getElementById('result2').value = sentenceLevelResult;
+        }
+    </script>
+</body>
+</html>
